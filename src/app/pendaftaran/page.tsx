@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import { api } from '@/lib/axios'
 import { showToast } from '@/components/toast/Toast'
+import { getSession } from '@/lib/auth'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function PendaftaranPage() {
   const router = useRouter()
@@ -15,11 +18,20 @@ export default function PendaftaranPage() {
   const [noHp, setNoHp] = useState('')
   const [jenisKelamin, setJenisKelamin] = useState('L')
   const [kelas, setKelas] = useState('KELAS_1')
+  const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    const session = getSession()
+    if (!session) {
+      router.replace('/')
+    }
+  }, [router])
 
   const onSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault()
+    setSubmitting(true)
 
     try {
       const res = await api.post('/pendaftaran', {
@@ -35,7 +47,7 @@ export default function PendaftaranPage() {
       showToast(res.data.message, 'success')
 
       setTimeout(() => {
-        router.push('/')
+        router.push('/dashboard')
       }, 1000)
 
     } catch (error: any) {
@@ -44,6 +56,8 @@ export default function PendaftaranPage() {
           'Pendaftaran gagal',
         'danger'
       )
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -66,6 +80,9 @@ export default function PendaftaranPage() {
             <p className="text-muted">
               Silakan lengkapi data berikut
             </p>
+            <Link href="/dashboard" className="small">
+              Kembali ke Dashboard
+            </Link>
           </div>
 
           <form onSubmit={onSubmit}>
@@ -199,8 +216,9 @@ export default function PendaftaranPage() {
                 background: '#1e2a3a',
                 borderRadius: '8px'
               }}
+              disabled={submitting}
             >
-              Daftar
+              {submitting ? 'Menyimpan...' : 'Daftar'}
             </button>
 
           </form>

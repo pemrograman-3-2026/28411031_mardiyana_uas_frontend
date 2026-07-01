@@ -2,41 +2,37 @@
 
 import { showToast } from "@/components/toast/Toast";
 import { api } from "@/lib/axios";
-import { saveSession } from "@/lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
 
+  const [nama_admin, setNamaAdmin] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const onLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const res = await api.post('/user/login', {
+      const res = await api.post('/user/register', {
+        nama_admin,
         username,
         password
       });
 
-      if (res.data.data) {
-        saveSession(res.data.data);
-      }
-
       showToast(res.data.message, 'success');
 
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/');
       }, 1000);
 
     } catch (error: any) {
       console.error(error);
-
       showToast(
-        error?.response?.data?.message || 'Login gagal',
+        error?.response?.data?.message || 'Register gagal',
         'danger'
       );
     }
@@ -55,13 +51,28 @@ export default function LoginPage() {
         <div className="card-body p-4 p-md-5">
 
           <div className="text-center">
-            <h5 className="fw-bold mb-1">Selamat Datang</h5>
+            <h5 className="fw-bold mb-1">Daftar Akun</h5>
             <p className="text-muted small mb-4">
-              Masuk ke Admin
+              Buat akun admin baru
             </p>
           </div>
 
-          <form onSubmit={onLogin}>
+          <form onSubmit={onRegister}>
+
+            <div className="mb-3">
+              <label className="form-label small fw-semibold">
+                Nama Lengkap
+              </label>
+
+              <input
+                type="text"
+                className="form-control form-control-sm py-2"
+                placeholder="Masukkan Nama"
+                value={nama_admin}
+                onChange={(e) => setNamaAdmin(e.target.value)}
+                required
+              />
+            </div>
 
             <div className="mb-3">
               <label className="form-label small fw-semibold">
@@ -97,29 +108,29 @@ export default function LoginPage() {
               type="submit"
               className="btn w-100 py-2 text-white fw-semibold"
               style={{
-                background: "#1e2a3a",
+                background: "#91419c",
                 borderRadius: "8px"
               }}
             >
-              Masuk
+              Daftar
             </button>
 
           </form>
 
           <p className="text-center text-muted small mt-4 mb-2">
-            Belum punya akun?
+            Sudah punya akun?
           </p>
 
-          <Link href="/register">
+          <Link href="/">
             <button
               type="button"
               className="btn w-100 py-2 text-white fw-semibold"
               style={{
-                background: "#1e2a3a",
+                background: "#387fbe",
                 borderRadius: "8px"
               }}
             >
-              Daftar
+              Kembali ke Login
             </button>
           </Link>
 
